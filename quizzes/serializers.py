@@ -1,6 +1,12 @@
 from rest_framework import serializers
-from .models import Answer, Question
+from .models import Answer, Question, UserQuestion
 from .services import create_answers, update_answers
+
+
+class UserAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model: UserQuestion = UserQuestion
+        fields: tuple = 'question', 'answer', 'user'
 
 
 class AnswerSerializer(serializers.ModelSerializer):

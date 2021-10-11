@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Question(models.Model):
@@ -12,5 +13,9 @@ class Answer(models.Model):
 
 
 class UserQuestion(models.Model):
-    question: models.BooleanField = models.ForeignKey(Question, models.CASCADE)
-    answer: models.BooleanField = models.ForeignKey(Answer, models.CASCADE)
+    question: models.ForeignKey = models.ForeignKey(Question, models.CASCADE)
+    answer: models.ForeignKey = models.ForeignKey(Answer, models.CASCADE)
+    user: models.ForeignKey = models.ForeignKey(User, models.RESTRICT)
+
+    class Meta:
+        unique_together: tuple = 'user', 'question', 'answer'

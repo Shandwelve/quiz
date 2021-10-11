@@ -1,14 +1,16 @@
+from pprint import pprint
+
 from django.http import JsonResponse
-from rest_framework.parsers import JSONParser
 from rest_framework.request import Request
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
-from .serializers import QuizSerializer
+from .serializers import QuizSerializer, UserAnswerSerializer
 from .models import Question
 
 
 class ListCreateApiQuiz(APIView):
-    parser_classes: tuple = JSONParser,
+    permission_classes: tuple = IsAuthenticated,
 
     def get(self, request: Request) -> JsonResponse:
         serializer: QuizSerializer = QuizSerializer(Question.objects.all(), many=True)
@@ -24,7 +26,7 @@ class ListCreateApiQuiz(APIView):
 
 
 class RetrieveUpdateDeleteApiQuiz(APIView):
-    parser_classes: tuple = JSONParser,
+    permission_classes: tuple = IsAuthenticated,
 
     def put(self, request: Request, question_id: int):
         question: Question = Question.objects.get(pk=question_id)
@@ -44,3 +46,15 @@ class RetrieveUpdateDeleteApiQuiz(APIView):
         Question.objects.get(pk=question_id).delete()
 
         return JsonResponse(True, safe=False, status=204)
+
+
+class CreateUserAnswer(APIView):
+    permission_classes: tuple = IsAuthenticated,
+
+    def post(self, request: Request) -> JsonResponse:
+        request.data['user'] = request.user.id
+        serializer: UserAnswerSerializer = UserAnswerSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return JsonResponse(serializer.data)
